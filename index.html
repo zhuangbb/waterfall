@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>瀑布流展示图片</title>
+        <style type="text/css">
+            *{margin: 0; padding: 0; list-style:none;}
+            #main{
+                position:relative;
+            }
+            .box{
+                float: left;
+                padding:15px 0 0 15px;
+            }
+            .pic{
+                padding: 10px;
+                border: 1px solid #eee;
+                border-radius: 5px;
+                box-shadow: 0 0 5px #eee;
+            }
+            .pic img{
+                width: 165px;
+                height:auto;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="main">
+            <div class="box"><div class="pic"><img src="./images/0.jpg"/></div></div>
+            <div class="box"><div class="pic"><img src="./images/1.jpg"/></div></div>
+            <div class="box"><div class="pic"><img src="./images/2.jpg"/></div></div>
+            <div class="box"><div class="pic"><img src="./images/3.jpg"/></div></div>
+            <div class="box"><div class="pic"><img src="./images/4.jpg"/></div></div>
+            <div class="box"><div class="pic"><img src="./images/5.jpg"/></div></div>
+            <div class="box"><div class="pic"><img src="./images/6.jpg"/></div></div>
+            <div class="box"><div class="pic"><img src="./images/7.jpg"/></div></div>
+            <div class="box"><div class="pic"><img src="./images/8.jpg"/></div></div>
+            <div class="box"><div class="pic"><img src="./images/9.jpg"/></div></div>
+            <div class="box"><div class="pic"><img src="./images/10.jpg"/></div></div>
+            <div class="box"><div class="pic"><img src="./images/11.jpg"/></div></div>
+            <div class="box"><div class="pic"><img src="./images/12.jpg"/></div></div>
+            <div class="box"><div class="pic"><img src="./images/13.jpg"/></div></div>
+            <div class="box"><div class="pic"><img src="./images/14.jpg"/></div></div>
+            <div class="box"><div class="pic"><img src="./images/15.jpg"/></div></div>
+            <div class="box"><div class="pic"><img src="./images/16.jpg"/></div></div>
+            <div class="box"><div class="pic"><img src="./images/17.jpg"/></div></div>
+            <div class="box"><div class="pic"><img src="./images/18.jpg"/></div></div>
+            <div class="box"><div class="pic"><img src="./images/19.jpg"/></div></div>
+            <div class="box"><div class="pic"><img src="./images/20.jpg"/></div></div>
+            <div class="box"><div class="pic"><img src="./images/21.jpg"/></div></div>
+            <div class="box"><div class="pic"><img src="./images/22.jpg"/></div></div>
+            <div class="box"><div class="pic"><img src="./images/23.jpg"/></div></div>
+        </div>
+    </body>
+    <script type="text/javascript">
+        window.onload = function(){
+            waterfall('main','box')
+            var dataInt = {"data":[{"src":'86.jpg'},{"src":'88.jpg'},{"src":'92.jpg'}]}
+            window.onscroll = function(){
+                if(checkScrollSlide){
+                    var oParent = document.getElementById('main');
+                    // 将数据块渲染到当前页面的尾部
+                    for (var i=0; i<dataInt.data.length;i++) {
+                        var oBox = document.createElement('div');
+                        oBox.className = 'box';
+                        oParent.appendChild(oBox);
+                        var oPic = document.createElement('div');
+                        oPic.className = 'pic';
+                        oBox.appendChild(oPic);
+                        var oImg = document.createElement('img');
+                        oImg.src = 'images/' + dataInt.data[i].src;
+                        oPic.appendChild(oImg);
+                    }
+                    waterfall('main','box');
+                }
+            }
+        }
+        function waterfall(parent,box){
+            var oParent = document.getElementById(parent);
+            var oBoxs = getClassObj(oParent,box);
+            var oneBoxW = oBoxs[0].offsetWidth;
+            var num = Math.floor(document.documentElement.offsetWidth / oneBoxW);
+            oParent.style.cssText = 'width:'+oneBoxW*num + 'px;margin:0 auto';
+            var clomArr = [];//用来存放每一列数组的高度
+            for (var i=0; i<oBoxs.length; i++) {
+                var eachH = oBoxs[i].offsetHeight;
+                if(i<num){
+                    clomArr[i] = eachH;//第一行中的num个块框pin 先添加进数组pinHArr
+                }else{
+                    var minH = Math.min.apply(null,clomArr);
+                    var minIndex = getminHIndex(clomArr,minH);
+                    oBoxs[i].style.position = 'absolute';
+                    oBoxs[i].style.top = minH + 'px';
+                    // debugger
+                    // oBoxs[i].style.left = oBoxs[minIndex].offsetLeft + 'px';
+                    oBoxs[i].style.left = oneBoxW*minIndex + 'px';
+                    clomArr[minIndex] += oBoxs[i].offsetHeight;
+                }
+            };
+
+        }
+        function getClassObj(oParent,clsName){
+            var obj = oParent.getElementsByTagName('*')//获取父元素下面所有的元素
+            var childArr = [];
+            for (var i = 0; i < obj.length; i++) {
+                if(obj[i].className == clsName){
+                    childArr.push(obj[i])
+                }
+            }
+            return childArr;
+        }
+        function getminHIndex(arr,val){
+            for (var i = 0; i < arr.length; i++) {
+                if(arr[i] == val){
+                    return i;
+                }   
+            }
+        }
+        // 检车是否具备了数据加载的条件  小于就加载
+        function checkScrollSlide(){
+            var oParent = document.getElementById('main');
+            var oBoxs = getClassObj(oParent,'box');
+            var lastBoxH = oBoxs[oBoxs.length-1].offsetTop + Math.floor(oBoxs[oBoxs.length-1].offsetHeight/2);
+            // debugger
+            var scrollTop = document.body.scrollTop || document.documentElement.scrollTop;
+            var height = document.body.clientHeight || document.documentElement.clientHeight; //注意解决兼容性
+            return (lastBoxH < scrollTop + height) ? true : false;
+
+        }
+    </script>
+</html>
